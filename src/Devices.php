@@ -1,20 +1,23 @@
 <?php
 
-class Devices {
-
+class Devices
+{
 	protected $proc;
 
-	public function __construct(Proc $proc) {
+	public function __construct(Proc $proc)
+    {
 		$this->proc = $proc;
 	}
 
-	public function mounts() {
+	public function mounts(): array
+    {
 		return $this->proc->mounts();
 	}
 
-	function stats() {
+	public function stats() : array
+    {
 		$mounts = $this->mounts();
-		$stats = array();
+		$stats = [];
 
 		foreach($this->proc->diskstats() as $diskstat) {
 			foreach($mounts as $mount) {
@@ -27,7 +30,8 @@ class Devices {
 		return $stats;
 	}
 
-	function usage() {
+	public function usage(): array
+    {
 		$a = $this->stats();
 
 		// delay
@@ -36,7 +40,7 @@ class Devices {
 		$b = $this->stats();
 
 		// changes
-		$c = array();
+		$c = [];
 
 		foreach(array_keys($a) as $device) {
 			foreach(array_keys($a[$device]) as $prop) {
@@ -45,18 +49,17 @@ class Devices {
 		}
 
 		// results
-		$stats = array();
+		$stats = [];
 
 		foreach(array_keys($c) as $device) {
 			$usage = 100 * $c[$device]['ms_spent_doing_io'] / ($elapsed / 1000);
 
-			$stats[] = array(
+			$stats[] = [
 				'device' => $device,
 				'usage' => round($usage),
-			);
+			];
 		}
 
 		return $stats;
 	}
-
 }

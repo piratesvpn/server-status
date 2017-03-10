@@ -1,0 +1,20 @@
+{
+    "repositories": [
+		{
+            "type": "vcs",
+            "url": "git@github.com:rwarasaurus/prototype.git"
+        }
+	],
+    "require": {
+        "php": "^7.0",
+        "rwarasaurus/prototype": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "": "src/"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}

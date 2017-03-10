@@ -1,32 +1,34 @@
 <?php
 
-class Proc {
-
+class Proc
+{
 	protected $proc = '/proc';
 
-	public function __construct() {}
-
-	public function path($resource) {
+	public function path(string $resource): string
+    {
 		return $this->proc.'/'.$resource;
 	}
 
-	public function open($resource) {
+	public function open(string $resource): string
+    {
 		$path = $this->path($resource);
 
 		return trim(file_get_contents($path));
 	}
 
-	public function toArray($resource) {
+	public function toArray(string $resource): array
+    {
 		$contents = $this->open($resource);
 
 		return explode("\n", $contents);
 	}
 
-	public function stat($pid) {
+	public function stat(int $pid): array
+    {
 		$contents = $this->open($pid . '/stat');
 		$parts = preg_split('#\s+#', $contents);
 
-		$columns = array(
+		$columns = [
 			'pid', // The process ID
 			'comm', // The filename of the executable
 			'state', // One character from the string "RSDZTW"
@@ -51,12 +53,13 @@ class Proc {
 			'starttime', // The time the process started after system boot in clock ticks
 			'vsize', // Virtual memory size in bytes
 			'rss', // Resident Set Size: number of pages the process has in real memory
-		);
+		];
 
 		return array_combine($columns, array_slice($parts, 0, count($columns)));
 	}
 
-	public function statm($pid) {
+	public function statm(int $pid): array
+    {
 		$contents = $this->open($pid . '/statm');
 		$values = preg_split('#\s+#', $contents);
 
@@ -65,15 +68,17 @@ class Proc {
 		return array_combine($columns, $values);
 	}
 
-	public function uptime() {
+	public function uptime(): int
+    {
 		$contents = $this->open('uptime');
 		$values = preg_split('#\s+#', $contents);
 		return time() - intval($values[0]);
 	}
 
-	public function pids() {
+	public function pids(): array
+    {
 		$fi = new FilesystemIterator($this->proc, FilesystemIterator::SKIP_DOTS);
-		$ps = array();
+		$ps = [];
 
 		foreach($fi as $fileinfo) {
 			$name = $fileinfo->getFilename();
@@ -86,21 +91,14 @@ class Proc {
 		return $ps;
 	}
 
-	public function cmdline($pid) {
-		$contents = $this->open($pid.'/cmdline');
-
-		$lines = explode("\0", $contents);
-		$cmd = $lines[0];
-
-		if(strpos($cmd, '/') === 0) {
-			$cmd = basename($cmd);
-		}
-
-		return $cmd;
+	public function cmdline($pid): string
+    {
+		return $this->open($pid.'/cmdline');
 	}
 
-	public function meminfo() {
-		$meminfo = array();
+	public function meminfo()
+    {
+		$meminfo = [];
 
 		foreach($this->toArray('meminfo') as $line) {
 			$values = preg_split('#\s+#', $line);
@@ -110,8 +108,9 @@ class Proc {
 		return $meminfo;
 	}
 
-	public function mounts() {
-		$mounts = array();
+	public function mounts(): array
+    {
+		$mounts = [];
 
 		foreach($this->toArray('mounts') as $line) {
 			$parts = preg_split('#\s+#', trim($line));
@@ -124,10 +123,11 @@ class Proc {
 		return $mounts;
 	}
 
-	public function diskstats() {
-		$stats = array();
+	public function diskstats(): array
+    {
+		$stats = [];
 
-		$columns = array(
+		$columns = [
 			'major', // major number
 			'minor', // minor mumber
 		 	'device', // device name
@@ -142,7 +142,7 @@ class Proc {
 			'ios_in_progress', // I/Os currently in progress
 			'ms_spent_doing_io', // time spent doing I/Os (ms)
 			'ms_weighted', // weighted time spent doing I/Os (ms)
-		);
+		];
 
 		foreach($this->toArray('diskstats') as $line) {
 			$values = preg_split('#\s+#', trim($line));
@@ -151,5 +151,4 @@ class Proc {
 
 		return $stats;
 	}
-
 }

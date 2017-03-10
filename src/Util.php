@@ -1,8 +1,9 @@
 <?php
 
-class Util {
-
-	public static function size($bytes) {
+class Util
+{
+	public static function size(int $bytes): string
+    {
 		$powers = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
 		$power = 0;
 
@@ -13,5 +14,4 @@ class Util {
 
 		return round($bytes) . $powers[$power];
 	}
-
 }

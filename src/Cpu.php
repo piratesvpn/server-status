@@ -1,17 +1,19 @@
 <?php
 
-class Cpu {
-
+class Cpu
+{
 	protected $proc;
 
-	public function __construct(Proc $proc) {
+	public function __construct(Proc $proc)
+    {
 		$this->proc = $proc;
 	}
 
-	protected function stats() {
-		$cpus = array();
+	protected function stats(): array
+    {
+		$cpus = [];
 
-		$columns = array(
+		$columns = [
 			'cpu', // Cpu name
 			'user', // Time spent in user mode.
 			'nice', // Time spent in user mode with low priority
@@ -23,7 +25,7 @@ class Cpu {
 			'steal', // Stolen time, which is the time spent in other operating systems when running in a virtualized environment
 			'guest', // Time spent running a virtual CPU for guest
 			'guest_nice', // Time spent running a niced guest (virtual CPU for guest operating systems under the control of the Linux kernel).
-		);
+		];
 
 		foreach($this->proc->toArray('stat') as $index => $line) {
 			$parts = preg_split('#\s+#', trim($line));
@@ -37,7 +39,8 @@ class Cpu {
 		return $cpus;
 	}
 
-	public function usage() {
+	public function usage(): array
+    {
 		$a = $this->stats();
 
 		// delay
@@ -46,7 +49,7 @@ class Cpu {
 		$b = $this->stats();
 
 		// changes
-		$c = array();
+		$c = [];
 
 		foreach(array_keys($a) as $index) {
 			foreach(array_keys($a[$index]) as $prop) {
@@ -55,7 +58,7 @@ class Cpu {
 		}
 
 		// results
-		$cpus = array();
+		$cpus = [];
 
 		foreach(array_keys($a) as $index) {
 			$usage = 100 * (($c[$index]['user'] + $c[$index]['system']) / $c[$index]['total']);
@@ -68,5 +71,4 @@ class Cpu {
 
 		return $cpus;
 	}
-
 }
